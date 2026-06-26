@@ -1,3 +1,4 @@
+[machete-estructuras-datos-c.html](https://github.com/user-attachments/files/29387897/machete-estructuras-datos-c.html)
 <!DOCTYPE html>
 <html lang="es">
 <head>
