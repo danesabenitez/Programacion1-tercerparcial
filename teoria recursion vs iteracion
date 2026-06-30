@@ -1,0 +1,62 @@
+## 3. Recursión vs. Iteración
+
+| Aspecto              | Iteración                                                 | Recursión                                                                     |
+|----------------------|-----------------------------------------------------------|-------------------------------------------------------------------------------|
+| Mecanismo            | Estructuras cíclicas: for, while, do-while                | La función se llama a sí misma                                                |
+| Condición de parada  | Condición del bucle (si no se cumple → bucle infinito)    | Caso base (si no se alcanza → desbordamiento/Stack Overflow)                  |
+| Memoria              | Reutiliza la misma memoria, modifica variables existentes | Consume memoria de la pila (stack) por cada llamada — uso de memoria más alto |
+| Forma de detenerse   | Condicional del propio bucle                              | Estructuras condicionales (if-else) dentro de la función                      |
+
+### ¿Qué es el caso base?
+Es la condición que detiene la recursión sin volver a llamarse a sí misma. Si la función nunca llega al caso base (o el problema nunca se "achica" hacia él), las llamadas se acumulan indefinidamente en la pila de llamadas
+(Call Stack) y el programa termina en un **Stack Overflow** (desbordamiento de pila) en tiempo de ejecución — NO es un error de compilación.
+
+### Dónde se guardan las variables de cada llamada recursiva
+Cada vez que una función (recursiva o no) se llama, se crea un **Stack Frame** (marco de pila) dentro del **Call Stack** (pila de llamadas), que guarda las variables locales y los parámetros de ESA llamada en particular.
+Por eso cada llamada "tiene su propia copia" de `n`, sin pisar las demás.
+
+### Ejemplo: factorial(n)
+int factorial(int n) {
+    if (n == 1) {
+        return 1;            // caso base
+    } else {
+        return n * factorial(n - 1);  // caso recursivo
+    }
+}
+
+Traza de `factorial(4)`:
+- `factorial(4) = 4 * factorial(3)`
+- `factorial(3) = 3 * factorial(2)`
+- `factorial(2) = 2 * factorial(1)`
+- `factorial(1) = 1` ← caso base, acá empieza a "desenrollar"
+Subiendo: 2\*1=2, luego 3\*2=6, luego 4\*6=24. Resultado final:
+`factorial(4) = 24`.
+
+### Ejemplo: fibonacci(n)
+
+int fibonacci(int n) {
+    if (n == 0) return 0;
+    if (n == 1) return 1;
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+Tiene DOS casos base (n==0 y n==1). La secuencia que genera, llamando
+`fibonacci(0)`, `fibonacci(1)`, `fibonacci(2)`... es: **0  1  1  2  3  5  8  13  ...**
+
+Cada número (a partir del tercero) es la suma de los dos anteriores. Un error típico es arrancar la secuencia en "1 1 2 3..." salteándose el `fibonacci(0) = 0` inicial.
+
+### Ejemplo: cuentaRegresiva(n) — recursión que imprime antes de llamarse
+void cuentaRegresiva(int n) {
+    if (n == 0) {
+        printf("¡Listo!");
+    } else {
+        printf("%d ", n);
+        cuentaRegresiva(n - 1);
+    }
+}
+
+Con `cuentaRegresiva(5)`: imprime 5, luego se llama con 4 (imprime 4), luego 3, 2, 1, y finalmente con 0 entra al caso base e imprime ¡Listo!. Salida completa: `5 4 3 2 1 ¡Listo!`
+
+### Peligro de la recursión sin caso base
+Si falta el caso base, o el paso recursivo no se va acercando a él (por ejemplo, restar mal o no restar nada), las llamadas nunca terminan de "bajar" y se sigue apilando un Stack Frame tras otro hasta agotar la
+memoria de la pila → **Stack Overflow** en tiempo de ejecución.
