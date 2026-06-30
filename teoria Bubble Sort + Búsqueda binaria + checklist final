@@ -1,0 +1,108 @@
+## 6. Ordenamiento: Bubble Sort
+Bubble Sort es un algoritmo de ordenamiento que compara elementos adyacentes y los intercambia si están en el orden incorrecto. En cada pasada, el elemento más grande "burbujea" hasta el final del arreglo.
+
+### Implementación
+void bubbleSort(int arr[], int n) {
+    int i, j, temp;
+
+    for (i = 0; i < n - 1; i++) {
+        for (j = 0; j < n - i - 1; j++) {
+
+            if (arr[j] > arr[j + 1]) {
+
+                temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+
+            }
+        }
+    }
+}
+
+### ¿Cómo funciona?
+- El bucle interno (`j`) compara elementos consecutivos: `arr[j]` con `arr[j + 1]`.
+- Si el primero es mayor que el segundo, los intercambia.
+- El bucle externo (`i`) garantiza que se realicen suficientes pasadas para ordenar completamente el arreglo.
+- En cada pasada del ciclo externo, el número más grande entre los que todavía no están ordenados queda ubicado al final.
+
+### Intercambio (swap)
+Las tres instrucciones que realizan el intercambio son:
+temp = arr[j];
+arr[j] = arr[j + 1];
+arr[j + 1] = temp;
+Se utiliza una variable auxiliar (`temp`) para guardar temporalmente un valor y evitar perderlo al sobrescribir el contenido del arreglo.
+
+### Conceptos importantes
+- Bubble Sort compara elementos **adyacentes**.
+- Necesita **varias pasadas** para ordenar el arreglo.
+- El límite del bucle interno (`n - i - 1`) evita volver a comparar los
+  elementos que ya quedaron ordenados.
+- Funciona correctamente para arreglos de cualquier longitud.
+
+## 7. Búsqueda binaria
+La búsqueda binaria permite encontrar un elemento de forma eficiente, pero **solo funciona sobre arreglos previamente ordenados**. En cada iteración divide el rango de búsqueda a la mitad.
+### Implementación
+int inicio = 0;
+int fin = tam - 1;
+
+while (inicio <= fin) {
+    int medio = (inicio + fin) / 2;
+    if (arr[medio] == buscado) {
+        return medio;
+    } else if (arr[medio] < buscado) {
+        inicio = medio + 1;
+    } else {
+        fin = medio - 1;
+    }
+}
+
+### ¿Cómo funciona?
+1. Se calcula la posición del elemento del medio:
+medio = (inicio + fin) / 2;
+2. Si el elemento del medio coincide con el buscado, la búsqueda termina y se devuelve su posición.
+3. Si el valor buscado es mayor que `arr[medio]`, se descarta toda la mitad izquierda:
+inicio = medio + 1;
+4. Si el valor buscado es menor que `arr[medio]`, se descarta toda la mitad derecha:
+fin = medio - 1;
+
+El proceso continúa reduciendo el rango de búsqueda hasta encontrar el elemento o hasta que `inicio` sea mayor que `fin`.
+
+### Conceptos importantes
+- Solo funciona en arreglos **ordenados**.
+- En cada paso reduce el rango de búsqueda aproximadamente a la mitad.
+- El índice medio siempre se calcula como:
+
+medio = (inicio + fin) / 2;
+
+## 8. Otros conceptos
+### Procedimientos en C
+En C no existe la palabra reservada `procedure`. Un procedimiento se representa mediante una función cuyo tipo de retorno es:
+void
+Esto indica que la función realiza una acción, pero **no devuelve ningún valor**.
+
+### Recursión e iteración (uso de memoria)
+- La **iteración** reutiliza la misma memoria durante todo el proceso.
+- La **recursión** crea un nuevo **Stack Frame** (marco de pila) por cada
+  llamada, por lo que consume más memoria.
+
+Si una función recursiva no posee un caso base (o nunca llega a él), las llamadas continúan acumulándose hasta producir un **Stack Overflow** (desbordamiento de pila).
+
+## Checklist final
+Antes del parcial conviene repasar:
+- Diferenciar paso por valor (`int x`) y paso por referencia (`int *x`).
+- Recordar que los arreglos comienzan en el índice **0**.
+- El segundo elemento corresponde al índice **1**.
+- En un BST, el caso base de "no encontrado" es:
+raiz == NULL
+
+- El recorrido **Inorden** visita:
+Izquierda → Nodo → Derecha
+En un BST imprime los elementos ordenados de menor a mayor.
+- Las estructuras dinámicas **sí** pueden cambiar de tamaño durante la ejecución del programa.
+- Bubble Sort necesita varias pasadas para ordenar.
+- Un BST degenerado pierde eficiencia.
+
+- Recordar que:
+factorial(4) = 4 × 3 × 2 × 1 = 24
+- La sucesión de Fibonacci comienza en:
+0, 1, 1, 2, 3, 5, 8, 13...
