@@ -1,0 +1,130 @@
+## 4. Listas enlazadas (estructuras dinámicas lineales)
+Una lista enlazada es una secuencia de nodos donde cada nodo guarda un dato y un puntero al siguiente nodo. Es una estructura dinámica: su tamaño puede crecer o achicarse en tiempo de ejecución 
+(no como un arreglo, que tiene tamaño fijo).
+
+### Crear un nodo (reserva dinámica con malloc)
+struct Nodo* crearNodo(int valor) {
+    struct Nodo* nuevo = (struct Nodo*) malloc(sizeof(struct Nodo));
+    nuevo->dato = valor;
+    nuevo->siguiente = NULL;
+    return nuevo;
+}
+
+- `malloc` reserva memoria dinámica (en el Heap) del tamaño de un `struct Nodo`.
+- `nuevo->dato = valor` asigna el valor recibido al campo `dato` del nodo.
+- `nuevo->siguiente = NULL` porque el nodo recién creado todavía no está
+  conectado a ningún otro.
+- Se devuelve el puntero al nuevo nodo, para poder usarlo/enlazarlo después.
+
+### Insertar al inicio de la lista (doble puntero)
+void insertarInicio(struct Nodo** cabeza, int valor) {
+    struct Nodo* nuevo = crearNodo(valor);
+    nuevo->siguiente = *cabeza;
+    *cabeza = nuevo;
+}
+
+Se recibe `struct Nodo** cabeza` (un puntero AL puntero cabeza) porque la función necesita modificar cuál es el primer nodo de la lista "de verdad", no una copia. Pasos: 1) se crea el nodo `nuevo`; 2) `nuevo->siguiente`
+apunta a donde antes apuntaba `cabeza` (es decir, al viejo primer nodo); 3) `*cabeza = nuevo` actualiza la cabeza real de la lista para que ahora apunte al nodo nuevo. Resultado: el nuevo nodo queda primero, y el resto de la
+lista queda "colgando" detrás de él.
+
+Ejemplo con `insertarAlInicio(&cabeza, 10)` y luego `insertarAlInicio(&cabeza, 20)`: primero queda 10, después se inserta 20 ADELANTE de 10. Lista final: `20 → 10` (el último insertado siempre queda primero).
+
+### Recorrer e imprimir toda la lista
+void mostrarLista(struct Nodo* cabeza) {
+    if (cabeza == NULL) {
+        printf("La lista está vacía");
+        return;
+    }
+    struct Nodo* actual = cabeza;
+    while (actual != NULL) {
+        printf("%d ", actual->dato);
+        actual = actual->siguiente;
+    }
+}
+
+Primero controla el caso especial de lista vacía. Si no está vacía, usa un puntero auxiliar `actual` que arranca en `cabeza`, imprime el dato de cada nodo y avanza con `actual = actual->siguiente` hasta llegar a `NULL` 
+(fin de la lista).
+
+### Buscar un valor en la lista
+int buscar(struct Nodo* cabeza, int valor) {
+    struct Nodo* actual = cabeza;
+    while (actual != NULL) {
+        if (actual->dato == valor) {
+            return 1;
+        }
+        actual = actual->siguiente;
+    }
+    return 0;
+}
+
+Recorre la lista igual que `mostrarLista`, pero en vez de imprimir, compara cada dato con el valor buscado. Si lo encuentra, devuelve 1 (verdadero) inmediatamente. Si termina de recorrer toda la lista sin encontrarlo,
+devuelve 0 (falso). NO agrega, ni elimina, ni devuelve la posición: solo informa si el valor está o no.
+
+### ¿Cómo saber si un nodo es el último?
+Un nodo `actual` es el último de la lista cuando `actual->siguiente == NULL` (es decir, no tiene a quién apuntar después de él). Ojo: no confundir con `actual == NULL`, que indicaría que ya nos pasamos del final.
+
+### Estructuras dinámicas vs. lineales (conceptos)
+- Estructuras de datos **DINÁMICAS**: su tamaño SÍ puede modificarse durante la ejecución del programa; el único límite real es la memoria disponible. (Cuidado: la opción "no pueden cambiar de forma/tamaño" es FALSA, 
+es justo lo contrario).
+- Estructuras de datos **LINEALES**: los elementos están uno al lado del otro, cada uno con un único sucesor y un único predecesor (por ejemplo, una lista enlazada simple).
+
+## 5. Árboles binarios de búsqueda (BST)
+Un Árbol Binario de Búsqueda (BST) es un árbol donde, para cada nodo, todos los valores del subárbol izquierdo son MENORES y todos los del subárbol derecho son MAYORES. Esta propiedad es la que permite buscar de forma
+eficiente, de manera parecida a la búsqueda binaria en arreglos.
+
+### Insertar un valor en el BST
+struct Nodo* insertar(struct Nodo* raiz, int valor) {
+    if (raiz == NULL) {
+        return crearNodo(valor);
+    }
+    if (valor < raiz->dato) {
+        raiz->izquierdo = insertar(raiz->izquierdo, valor);
+    } else if (valor > raiz->dato) {
+        raiz->derecho = insertar(raiz->derecho, valor);
+    }
+    return raiz;
+}
+
+Caso base: si `raiz` es `NULL` (llegamos a un lugar vacío del árbol), ahí se crea el nuevo nodo y se devuelve. Si no, se compara: si el valor es menor que el de la raíz actual, se sigue insertando recursivamente por la
+izquierda; si es mayor, por la derecha (manteniendo siempre la propiedad de orden del BST).
+
+### Buscar un valor en el BST
+struct Nodo* buscar(struct Nodo* raiz, int valorBuscado) {
+    if (raiz == NULL || raiz->dato == valorBuscado) {
+        return raiz;
+    }
+    if (valorBuscado < raiz->dato) {
+        return buscar(raiz->izquierdo, valorBuscado);
+    }
+    return buscar(raiz->derecho, valorBuscado);
+}
+
+El caso base que indica que el valor **NO** se encuentra en el árbol es `raiz == NULL`: significa que se llegó al final de una rama sin encontrar el dato (cuidado: `raiz->dato == valorBuscado` también es caso base, pero
+ese es el caso de ÉXITO, no el de "no encontrado"). El resto de la función decide ir por izquierda o derecha según la comparación, aprovechando el orden del BST.
+
+### Recorrido Inorden (in-order)
+void inorden(struct Nodo* raiz) {
+    if (raiz != NULL) {
+        inorden(raiz->izquierdo);
+        printf("%d ", raiz->dato);
+        inorden(raiz->derecho);
+    }
+}
+
+Orden de visita: primero todo el subárbol IZQUIERDO, después la RAÍZ, y por último todo el subárbol DERECHO (izquierda → nodo → derecha). En un BST, este recorrido tiene la propiedad especial de imprimir los elementos
+ordenados de MENOR a MAYOR.
+
+| Recorrido              | Orden de visita                                                        |
+|------------------------|------------------------------------------------------------------------|
+| Preorden (pre-order)   | Raíz → Izquierda → Derecha                                             |
+| Inorden (in-order)     | Izquierda → Raíz → Derecha (en un BST, sale ordenado de menor a mayor) |
+| Postorden (post-order) | Izquierda → Derecha → Raíz                                             |
+
+### Vocabulario y propiedades de los árboles
+- **Nodo:** cada elemento que contiene el árbol.
+- **Hijos:** son todos los nodos que tienen un padre.
+- **Nodo interior o rama:** todo nodo que NO es la raíz y que además tiene al menos un hijo.
+- **Nivel de un nodo:** su distancia a la raíz. Se calcula contando cuántos nodos hay desde la raíz hasta ese nodo (más 1), o al revés, contando hacia arriba hasta la raíz.
+- **Profundidad del árbol:** longitud del camino más largo desde la raíz hasta la hoja más alejada (cantidad de nodos en esa ruta). Si el árbol está vacío, la profundidad es 0.
+- Un BST que crece de forma descontrolada hacia un solo lado (degenerado, como una lista) **NO** mantiene su rendimiento estable: pierde la ventaja
+  de la búsqueda binaria y se vuelve lento (esa afirmación del parcial es FALSA).
