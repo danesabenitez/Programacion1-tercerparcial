@@ -1,0 +1,74 @@
+## 1. Punteros y paso de parámetros (por valor vs. por referencia)
+
+Cuando pasás una variable normal a una función, la función recibe una COPIA.
+Cuando pasás un puntero (la dirección de memoria, con `&`), la función puede modificar el valor original.
+
+### Caso A: paso por VALOR (no modifica el original)
+void duplicar(int x) {
+    x = x * 2;
+}
+int main() {
+    int n = 5;
+    duplicar(n);
+    printf("%d", n); // imprime 5
+}
+
+Al llamar `duplicar(n)`, C crea una variable local `x` dentro de la función con el mismo valor que `n` (5). Cuando hacés `x = x * 2`, solo cambiás esa copia local. La variable `n` de `main()` nunca se toca. Por eso, al volver,
+`n` sigue valiendo 5.
+
+### Caso B: paso por REFERENCIA usando puntero (sí modifica el original)
+void duplicar(int* x) {
+    *x = *x * 2;
+}
+int main() {
+    int n = 5;
+    duplicar(&n);
+    printf("%d", n); // imprime 10
+}
+
+Acá el parámetro `x` ya no es un `int`, es un puntero a `int` (`int*`), es decir, guarda una dirección de memoria. Al llamar `duplicar(&n)`, le pasamos la dirección de `n` (el operador `&` significa "dirección de"). Dentro de la
+función, `*x` significa "el valor que está en esa dirección" (operador de desreferencia). Entonces `*x = *x * 2` va directo a la memoria de `n` y la modifica. Por eso al volver a `main()`, `n` vale 10.
+
+**Regla de oro:** `int x` → trabaja con una copia (no modifica el original). `int* x` → trabaja con la dirección real, y `*x` accede/modifica el valor original.
+
+## 2. Estructuras (struct) y arreglos de structs
+Una `struct` agrupa distintos tipos de datos relacionados bajo un mismo nombre (a diferencia de un arreglo, que solo agrupa elementos del mismo tipo).
+
+struct Persona {
+    char nombre[50];
+    int edad;
+};
+struct Producto {
+    char nombre[50];
+    float precio;
+};
+struct Producto productos[3]; // arreglo de 3 structs
+```
+Acceso a un arreglo de structs: se usa índice + punto. Como en C los arreglos arrancan en 0, el "segundo producto" está en la posición 1:
+- `productos[1].precio` → precio del segundo producto (correcto)
+- `productos[2].precio` → sería el TERCER producto (índice 2 = tercer elemento)
+
+### Carga de un arreglo de structs con un for
+struct Persona grupo[3];
+for (int i = 0; i < 3; i++) {
+    printf("Ingrese nombre: ");
+    scanf("%s", grupo[i].nombre);
+    printf("Ingrese edad: ");
+    scanf("%d", &grupo[i].edad);
+}
+
+El `for` repite 3 veces, una por cada persona del arreglo, pidiendo nombre y edad y guardándolos en `grupo[i]`. Notá que en `edad` se usa `&grupo[i].edad` porque `scanf` siempre necesita una dirección de memoria
+para poder escribir el valor ingresado (para `char nombre[]` no hace falta el `&` porque el nombre de un arreglo ya es, en sí mismo, una dirección).
+
+### Búsqueda por nombre en un arreglo de structs (strcmp)
+
+char nombreBuscado[50];
+scanf("%s", nombreBuscado);
+for (int i = 0; i < 3; i++) {
+    if (strcmp(grupo[i].nombre, nombreBuscado) == 0) {
+        printf("Encontrado! Edad: %d", grupo[i].edad);
+    }
+}
+
+`strcmp` compara dos cadenas de texto y devuelve 0 cuando son IGUALES (no se pueden comparar strings con `==` en C). El `for` recorre el arreglo comparando cada nombre guardado contra el que escribió el usuario, hasta
+encontrar coincidencia.
